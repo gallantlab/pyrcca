@@ -1,7 +1,9 @@
 pyrcca
 ======
 
-Regularized kernel canonical correlation analysis in Python
+Regularized kernel canonical correlation analysis in Python.
+
+In this startup example, we create two random datasets with two latent variables, and use Pyrcca to implement CCA between them. The datasets are broken up into two halves. First, we use the first half of the datasets to train a CCA mapping. Then, we test the found mapping we found by validating it on the second half of the datasets. This procedure assures that the found canonical variates are generalizable and are not overfitting to the training data.
 
 ```python
 import numpy as np
