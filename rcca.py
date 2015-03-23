@@ -147,30 +147,6 @@ class CCA(_CCABase):
 
     def train(self, data):
         return super(CCA, self).train(data)
-        
-def slurm_submit(sb_command, cores = 1, dep = None, jname = "cca"):
-    import subprocess
-    if cores > 4:
-        cores = 4
-    memory = "%dGB" % (cores*8-2)
-    sbatch_list = ["sbatch",
-                     "-p", "all",
-                     "-c", str(cores),
-                     "-J", jname,
-                     "--mem="+memory,
-                     "--output=/auto/k1/nbilenko/slurm_out/slurm-%N-%j.out"]
-    if dep is not None:
-        for d in dep:
-            sbatch_list.append("--dependency=afterok:%s" %d)
-    sbproc = subprocess.Popen(sbatch_list,
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-    out, err = sbproc.communicate(sb_command)
-    print out
-    print err
-    sjobnum = out.split()[-1]
-    return sjobnum
 
 def predict(vdata, ws, cutoff = 1e-15):
     '''Get predictions for each dataset based on the other datasets and weights. Find correlations with actual dataset.'''
