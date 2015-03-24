@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.linalg import eigh
-import cPickle
+import h5py
 
 class _CCABase(object):
     def __init__(self, numCV = None, reg = None, regs = None, numCC = None, numCCs = None, kernelcca = True, ktype = None, verbose = False, select = 0.2, cutoff = 1e-15):
@@ -55,17 +55,33 @@ class _CCABase(object):
                 self.ev[s][cc] = ev
         return self.ev
 
-    def save(self, fname):
-        results = dict()
-        for key, value in self.__dict__.items():
-            results[key] = value
-        with open(fname, "wb") as f:
-            cPickle.dump(results, f)
+def save(self, filename):
+    h5 = h5py.File(filename, "a")
+    for key, value in self.__dict__.items():
+        if value is not None:
+            if isinstance(value, list):
+                for di in range(len(value)):
+                    grpname = "dataset%d" % di
+                    dgrp = h5.require_group(grpname)
+                    try:
+                        dgrp.create_dataset(key, data=value[di])
+                    except RuntimeError:
+                        del h5[grpname][key]
+                        dgrp.create_dataset(key, data=value[di])
+            else:
+                h5.attrs[key] = value
+    h5.close()
 
-    def load(self, fname):
-        results = cPickle.load(open(fname, "rb"))
-        for key, value in results.items():
-            setattr(self, key, value)
+def load(self, filename):
+    h5 = h5py.File(filename, "a")
+    for key, value in h5.attrs.items():
+        setattr(self, key, value)
+    for di in range(len(h5.keys())):
+        ds = "dataset%d" % di
+        for key, value in h5[ds].items():
+            if di == 0:
+                setattr(self, key, [])
+            self.__getattribute__(key).append(value.value)
 
 class CCACrossValidate(_CCABase):
     '''Attributes:
