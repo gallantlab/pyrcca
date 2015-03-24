@@ -50,7 +50,9 @@ class _CCABase(object):
             preds, corrs = predict(data, [w[:, ccs-1:ccs] for w in self.ws], self.cutoff)
             resids = [abs(d[0]-d[1]) for d in zip(data, preds)]
             for s in range(nD):
-                self.ev[s][cc] = abs(data[s].var(0) - resids[s].var(0))/data[s].var(0)
+                ev = abs(data[s].var(0) - resids[s].var(0))/data[s].var(0)
+                ev[np.isnan(ev)] = 0.
+                self.ev[s][cc] = ev
         return self.ev
 
     def save(self, fname):
