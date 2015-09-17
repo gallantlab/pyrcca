@@ -37,20 +37,20 @@ class _CCABase(object):
         self.preds, self.corrs = predict(vdata, self.ws, self.cutoff)
         return self.corrs
 
-    def compute_ev(self, data):
-        nD = len(data)
-        nT = data[0].shape[0]
-        self.numCC = nT if self.numCC is None else self.numCC
-        nF = [d.shape[1] for d in data]
-        self.ev = [np.zeros((self.numCC, f)) for f in nF]
-        for cc in range(self.numCC):
+    def compute_ev(self, vdata):
+        nD = len(vdata)
+        nT = vdata[0].shape[0]
+        nC = self.ws[0].shape[1]
+        nF = [d.shape[1] for d in vdata]
+        self.ev = [np.zeros((nC, f)) for f in nF]
+        for cc in range(nC):
             ccs = cc+1
             if self.verbose:
                 print("Computing explained variance for component #%d" % ccs)
-            preds, corrs = predict(data, [w[:, ccs-1:ccs] for w in self.ws], self.cutoff)
-            resids = [abs(d[0]-d[1]) for d in zip(data, preds)]
+            preds, corrs = predict(vdata, [w[:, ccs-1:ccs] for w in self.ws], self.cutoff)
+            resids = [abs(d[0]-d[1]) for d in zip(vdata, preds)]
             for s in range(nD):
-                ev = abs(data[s].var(0) - resids[s].var(0))/data[s].var(0)
+                ev = abs(vdata[s].var(0) - resids[s].var(0))/vdata[s].var(0)
                 ev[np.isnan(ev)] = 0.
                 self.ev[s][cc] = ev
         return self.ev
@@ -118,6 +118,8 @@ class CCACrossValidate(_CCABase):
         indchunks = zip(*[iter(allinds)]*chunklen)
         corr_mat = np.zeros((len(self.regs), len(self.numCCs)))
         selection = int(self.select*min([d.shape[1] for d in data]))
+        if selection == 0:
+            selection = 1
         for ri, reg in enumerate(self.regs):
             for ci, numCC in enumerate(self.numCCs):
                 corr_mean = 0
