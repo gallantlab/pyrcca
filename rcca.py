@@ -136,7 +136,7 @@ class CCACrossValidate(_CCABase):
                     ws, cancorrs = recon([d[notheldinds] for d in data], comps)
                     preds, corrs = predict([d[heldinds] for d in data], ws, self.cutoff)
                     corrs_idx = [np.argsort(cs)[::-1] for cs in corrs]
-                    corr_mean += np.mean([corrs[ci][corrs_idx[ci][:selection]].mean() for ci in range(len(corrs))])
+                    corr_mean += np.mean([corrs[corri][corrs_idx[corri][:selection]].mean() for corri in range(len(corrs))])
                 corr_mat[ri, ci] = corr_mean/self.numCV
         best_ri, best_ci = np.where(corr_mat == corr_mat.max())
         self.best_reg = self.regs[best_ri[0]]
