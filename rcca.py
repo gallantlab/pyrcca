@@ -24,8 +24,8 @@ class _CCABase(object):
                 print("Training CCA, %s kernel, regularization = %0.4f, %d components" % (self.ktype, self.reg, self.numCC))
             else:
                 print("Training CCA, regularization = %0.4f, %d components" % (self.reg, self.numCC))
-        self.comps = kcca(data, self.reg, self.numCC, kernelcca = self.kernelcca, ktype = self.ktype)
-        self.ws, self.cancorrs = recon(data, self.comps, kernelcca = self.kernelcca)
+        comps = kcca(data, self.reg, self.numCC, kernelcca = self.kernelcca, ktype = self.ktype)
+        self.cancorrs, self.ws, self.comps = recon(data, comps, kernelcca = self.kernelcca)
         if len(data) == 2:
             self.cancorrs = self.cancorrs[np.nonzero(self.cancorrs)]
         return self
@@ -132,8 +132,8 @@ class CCACrossValidate(_CCABase):
                     np.random.shuffle(indchunks)
                     heldinds = [ind for chunk in indchunks[:nchunks] for ind in chunk]
                     notheldinds = list(set(allinds)-set(heldinds))
-                    comps = kcca([d[notheldinds] for d in data], reg, numCC)
-                    ws, cancorrs = recon([d[notheldinds] for d in data], comps)
+                    comps = kcca([d[notheldinds] for d in data], reg, numCC, kernelcca = self.kernelcca, ktype=self.ktype)
+                    cancorrs, ws, ccomps = recon([d[notheldinds] for d in data], comps, kernelcca = self.kernelcca)
                     preds, corrs = predict([d[heldinds] for d in data], ws, self.cutoff)
                     corrs_idx = [np.argsort(cs)[::-1] for cs in corrs]
                     corr_mean += np.mean([corrs[corri][corrs_idx[corri][:selection]].mean() for corri in range(len(corrs))])
@@ -141,8 +141,8 @@ class CCACrossValidate(_CCABase):
         best_ri, best_ci = np.where(corr_mat == corr_mat.max())
         self.best_reg = self.regs[best_ri[0]]
         self.best_numCC = self.numCCs[best_ci[0]]
-        self.comps = kcca(data, self.best_reg, self.best_numCC, kernelcca = self.kernelcca, ktype = self.ktype)
-        self.ws, self.cancorrs = recon(data, self.comps, kernelcca = self.kernelcca)
+        comps = kcca(data, self.best_reg, self.best_numCC, kernelcca = self.kernelcca, ktype = self.ktype)
+        self.cancorrs, self.ws, self.comps = recon(data, comps, kernelcca = self.kernelcca)
         if len(data) == 2:
             self.cancorrs = self.cancorrs[np.nonzero(self.cancorrs)]
         return self
@@ -163,7 +163,7 @@ class CCA(_CCABase):
         preds - predictions on the validation dataset
         ev - explained variance for each canonical dimension
     '''
-    def __init__(self, reg = 0.1, numCC = 10, kernelcca = True, ktype = None, verbose = True, cutoff = 1e-15):
+    def __init__(self, reg = 0., numCC = 10, kernelcca = True, ktype = None, verbose = True, cutoff = 1e-15):
         super(CCA, self).__init__(reg = reg, numCC = numCC, kernelcca = kernelcca, ktype = ktype, verbose = verbose, cutoff = cutoff)
 
     def train(self, data):
@@ -188,7 +188,7 @@ def predict(vdata, ws, cutoff = 1e-15):
         corrs.append(cs)
     return preds, corrs
 
-def kcca(data, reg = 0.1, numCC=None, kernelcca = True, ktype = "linear", returncorrs = False):
+def kcca(data, reg = 0., numCC=None, kernelcca = True, ktype = "linear", returncorrs = False):
     '''Set up and solve the eigenproblem for the data in kernel and specified reg
     '''
     if kernelcca:
@@ -260,7 +260,7 @@ def recon(data, comp, corronly=False, kernelcca = True):
     if corronly:
         return corrs
     else:
-        return ws, corrs
+        return corrs, ws, ccomp
 
 def _zscore(d): return (d-d.mean(0))/d.std(0)
 def _demean(d): return d-d.mean(0)
