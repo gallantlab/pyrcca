@@ -3,45 +3,47 @@ pyrcca
 
 Regularized kernel canonical correlation analysis in Python.
 
-To view a static Jupyter notebook containing the example below, as well as analyses and the figures for a Pyrcca analysis on a natural movie fMRI dataset, please visit <a href="http://nbviewer.ipython.org/github/gallantlab/pyrcca/blob/master/Pyrcca_analysis.html">this page</a>. An interactive version of the notebook can be found in this repository.
+A static Jupyter notebook with the analysis of the example below can be found <a href="https://github.com/gallantlab/pyrcca/blob/master/Pyrcca_usage_example.ipynb">here</a>. The notebook can be explored interactively by cloning this repository.
 
 For more information, consult the following e-print publication:
 Bilenko, N.Y. and Gallant, J.L. (2015). Pyrcca: regularized kernel canonical correlation analysis in Python and its applications to neuroimaging. <a href="http://arxiv.org/abs/1503.01538">arXiv:1503.01538</a> [q-bio.QM]
 
 
-In this startup example, we create two random datasets with two latent variables, and use Pyrcca to implement CCA between them. The datasets are broken up into two halves. First, we use the first half of the datasets to train a CCA mapping. Then, we test the found mapping we found by validating it on the second half of the datasets. This procedure assures that the found canonical variates are generalizable and are not overfitting to the training data.
+In this startup example, two artificially constructed datasets are created. The datasets depend on two latent variables. Pyrcca is used to find linear relationships between the datasets. 
 
 ```python
+# Imports
 import numpy as np
 import rcca
 
-nObservations = 1000
+# Initialize number of samples
+nSamples = 1000
 
-# Define two latent variables
-lat_var1 = np.random.randn(nObservations,)
-lat_var2 = np.random.randn(nObservations,)
+# Define two latent variables (number of samples x 1)
+latvar1 = np.random.randn(nSamples,)
+latvar2 = np.random.randn(nSamples,)
 
-# Define independent signal components
-indep1 = np.random.randn(nObservations, 4)
-indep2 = np.random.randn(nObservations, 4)
+# Define independent components for each dataset (number of observations x dataset dimensions)
+indep1 = np.random.randn(nSamples, 4)
+indep2 = np.random.randn(nSamples, 5)
 
-# Define two datasets as a combination of latent variables
-# and independent signal components
-data1 = indep1 + np.vstack((lat_var1, lat_var1, lat_var2, lat_var1)).T
-data2 = indep2 + np.vstack((lat_var1, lat_var1, lat_var2, lat_var1)).T
+# Create two datasets, with each dimension composed as a sum of 75% one of the latent variables and 25% independent component
+data1 = 0.25*indep1 + 0.75*np.vstack((latvar1, latvar2, latvar1, latvar2)).T
+data2 = 0.25*indep2 + 0.75*np.vstack((latvar1, latvar2, latvar1, latvar2, latvar1)).T
 
-# Divide data into two halves: training and testing sets
-train1 = data1[:nObservations/2]
-test1 = data1[nObservations/2:]
-train2 = data2[:nObservations/2]
-test2 = data2[nObservations/2:]
+# Split each dataset into two halves: training set and test set
+train1 = data1[:nSamples/2]
+train2 = data2[:nSamples/2]
+test1 = data1[nSamples/2:]
+test2 = data2[nSamples/2:]
 
-# Set up Pyrcca
-cca = rcca.CCA(kernelcca=False, numCC=2, reg=0.)
+# Create a cca object as an instantiation of the CCA object class. 
+cca = rcca.CCA(kernelcca = False, reg = 0., numCC = 2)
 
-# Find canonical components
+# Use the train() method to find a CCA mapping between the two training sets.
 cca.train([train1, train2])
 
-# Test on held-out data
-corrs = cca.validate([test1, test2])
+# Use the validate() method to test how well the CCA mapping generalizes to the test data.
+# For each dimension in the test data, correlations between predicted and actual data are computed.
+testcorrs = cca.validate([test1, test2])
 ```
