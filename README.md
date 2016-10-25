@@ -11,7 +11,7 @@ Both notebooks can be explored interactively by cloning this repository.
 
 
 For more information, consult the following e-print publication:
-Bilenko, N.Y. and Gallant, J.L. (2015). Pyrcca: regularized kernel canonical correlation analysis in Python and its applications to neuroimaging. <a href="http://journal.frontiersin.org/article/10.3389/fninf.2016.00049/abstract">Frontiers in Neuroinformatics | doi: 10.3389/fninf.2016.00049</a>
+Bilenko, N.Y. and Gallant, J.L. (2015). Pyrcca: regularized kernel canonical correlation analysis in Python and its applications to neuroimaging. Frontiers in Neuroinformatics <a href="http://journal.frontiersin.org/article/10.3389/fninf.2016.00049/abstract"> doi: 10.3389/fninf.2016.00049</a>
 
 
 In this startup example, two artificially constructed datasets are created. The datasets depend on two latent variables. Pyrcca is used to find linear relationships between the datasets. 
