@@ -3,7 +3,7 @@ from scipy.linalg import eigh
 import h5py
 
 class _CCABase(object):
-    def __init__(self, numCV = None, reg = None, regs = None, numCC = None, numCCs = None, kernelcca = True, ktype = None, verbose = False, select = 0.2, cutoff = 1e-15, gausigma = 1.0):
+    def __init__(self, numCV = None, reg = None, regs = None, numCC = None, numCCs = None, kernelcca = True, ktype = None, verbose = False, select = 0.2, cutoff = 1e-15, gausigma = 1.0, degree = 2):
         self.numCV = numCV
         self.reg = reg
         self.regs = regs
@@ -14,6 +14,7 @@ class _CCABase(object):
         self.cutoff = cutoff
         self.select = select
         self.gausigma = gausigma
+        self.degree = degree
         if self.kernelcca and self.ktype == None:
             self.ktype = "linear"
         self.verbose = verbose
@@ -25,7 +26,7 @@ class _CCABase(object):
                 print("Training CCA, %s kernel, regularization = %0.4f, %d components" % (self.ktype, self.reg, self.numCC))
             else:
                 print("Training CCA, regularization = %0.4f, %d components" % (self.reg, self.numCC))
-        comps = kcca(data, self.reg, self.numCC, kernelcca = self.kernelcca, ktype = self.ktype, gausigma = self.gausigma)
+        comps = kcca(data, self.reg, self.numCC, kernelcca = self.kernelcca, ktype = self.ktype, gausigma = self.gausigma, degree = self.degree)
         self.cancorrs, self.ws, self.comps = recon(data, comps, kernelcca = self.kernelcca)
         if len(data) == 2:
             self.cancorrs = self.cancorrs[np.nonzero(self.cancorrs)]
@@ -101,11 +102,11 @@ class CCACrossValidate(_CCABase):
         preds - predictions on the validation dataset
         ev - explained variance for each canonical dimension
     '''
-    def __init__(self, numCV = None, regs = None, numCCs = None, kernelcca = True, ktype = None, verbose = True, select = 0.2, cutoff = 1e-15, gausigma = 1.0):
+    def __init__(self, numCV = None, regs = None, numCCs = None, kernelcca = True, ktype = None, verbose = True, select = 0.2, cutoff = 1e-15, gausigma = 1.0, degree = 2):
         numCV = 10 if numCV is None else numCV
         regs = np.array(np.logspace(-3, 1, 10)) if regs is None else regs
         numCCs = np.arange(5, 10) if numCCs is None else numCCs
-        super(CCACrossValidate, self).__init__(numCV = numCV, regs = regs, numCCs = numCCs, kernelcca = kernelcca, ktype = ktype, verbose = verbose, select = select, cutoff = cutoff, gausigma = gausigma)
+        super(CCACrossValidate, self).__init__(numCV = numCV, regs = regs, numCCs = numCCs, kernelcca = kernelcca, ktype = ktype, verbose = verbose, select = select, cutoff = cutoff, gausigma = gausigma, degree = degree)
 
     def train(self, data):
         """
@@ -133,7 +134,7 @@ class CCACrossValidate(_CCABase):
                     np.random.shuffle(indchunks)
                     heldinds = [ind for chunk in indchunks[:nchunks] for ind in chunk]
                     notheldinds = list(set(allinds)-set(heldinds))
-                    comps = kcca([d[notheldinds] for d in data], reg, numCC, kernelcca = self.kernelcca, ktype=self.ktype, gausigma = self.gausigma)
+                    comps = kcca([d[notheldinds] for d in data], reg, numCC, kernelcca = self.kernelcca, ktype=self.ktype, gausigma = self.gausigma, degree = self.degree)
                     cancorrs, ws, ccomps = recon([d[notheldinds] for d in data], comps, kernelcca = self.kernelcca)
                     preds, corrs = predict([d[heldinds] for d in data], ws, self.cutoff)
                     corrs_idx = [np.argsort(cs)[::-1] for cs in corrs]
@@ -142,7 +143,7 @@ class CCACrossValidate(_CCABase):
         best_ri, best_ci = np.where(corr_mat == corr_mat.max())
         self.best_reg = self.regs[best_ri[0]]
         self.best_numCC = self.numCCs[best_ci[0]]
-        comps = kcca(data, self.best_reg, self.best_numCC, kernelcca = self.kernelcca, ktype = self.ktype, gausigma = self.gausigma)
+        comps = kcca(data, self.best_reg, self.best_numCC, kernelcca = self.kernelcca, ktype = self.ktype, gausigma = self.gausigma, degree = self.degree)
         self.cancorrs, self.ws, self.comps = recon(data, comps, kernelcca = self.kernelcca)
         if len(data) == 2:
             self.cancorrs = self.cancorrs[np.nonzero(self.cancorrs)]
@@ -189,11 +190,11 @@ def predict(vdata, ws, cutoff = 1e-15):
         corrs.append(cs)
     return preds, corrs
 
-def kcca(data, reg = 0., numCC=None, kernelcca = True, ktype = "linear", gausigma = 1.0):
+def kcca(data, reg = 0., numCC=None, kernelcca = True, ktype = "linear", gausigma = 1.0, degree = 2):
     '''Set up and solve the eigenproblem for the data in kernel and specified reg
     '''
     if kernelcca:
-        kernel = [_make_kernel(d, ktype = ktype, gausigma = gausigma) for d in data]
+        kernel = [_make_kernel(d, ktype = ktype, gausigma = gausigma, degree = degree) for d in data]
     else:
         kernel = [d.T for d in data]
 
@@ -266,19 +267,23 @@ def _rowcorr(a, b):
         cs[idx] = np.corrcoef(a[idx], b[idx])[0,1]
     return cs
 
-def _make_kernel(d, normalize = True, ktype = "linear", gausigma = 1.0):
+def _make_kernel(d, normalize = True, ktype = "linear", gausigma = 1.0, degree = 2):
     '''Makes a kernel for data d
       If ktype is "linear", the kernel is a linear inner product
-      If ktype is "gaussian", the kernel is a Gaussian kernel with sigma = sigma
+      If ktype is "gaussian", the kernel is a Gaussian kernel with sigma = gausigma
+      If ktype is "poly", the kernel is a polynomial kernel with degree = degree
     '''
+    d = np.nan_to_num(d)
+    cd = _demean(d)
     if ktype == "linear":
-        d = np.nan_to_num(d)
-        cd = _demean(d)
         kernel = np.dot(cd,cd.T)
     elif ktype == "gaussian":
         from scipy.spatial.distance import pdist, squareform
         pairwise_dists = squareform(pdist(d, 'euclidean'))
-        kernel = np.exp(-pairwise_dists ** 2 / gausigma ** 2)
+        kernel = np.exp(-pairwise_dists ** 2 / 2*gausigma ** 2)
+    elif ktype == "poly":
+        kernel = np.dot(cd, cd.T)**degree
     kernel = (kernel+kernel.T)/2.
-    kernel = kernel / np.linalg.eigvalsh(kernel).max()
+    if normalize:
+        kernel = kernel / np.linalg.eigvalsh(kernel).max()
     return kernel
