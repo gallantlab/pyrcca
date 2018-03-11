@@ -294,8 +294,8 @@ def kcca(data, reg=0., numCC=None, kernelcca=True, ktype='linear',
 
         for j in range(nDs):
             if i != j:
-                LH[sum(nFs[:i]) : sum(nFs[:i+1]),
-                   sum(nFs[:j]) : sum(nFs[:j+1])] = crosscovs[nDs * j + i]
+                LH[sum(nFs[:j]) : sum(nFs[:j+1]),
+                   sum(nFs[:i]) : sum(nFs[:i+1])] = crosscovs[nDs * j + i]
 
     LH = (LH + LH.T) / 2.
     RH = (RH + RH.T) / 2.
