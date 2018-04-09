@@ -277,10 +277,7 @@ def kcca(data, reg=0., numCC=None, kernelcca=True, ktype='linear',
     numCC = min([k.shape[1] for k in kernel]) if numCC is None else numCC
 
     # Get the auto- and cross-covariance matrices
-    if kernelcca:
-        crosscovs = [np.dot(ki, kj.T) for ki in kernel for kj in kernel]
-    else:
-        crosscovs = [np.dot(ki, kj.T).T for ki in kernel for kj in kernel]
+    crosscovs = [np.dot(ki, kj.T) for ki in kernel for kj in kernel]
 
     # Allocate left-hand side (LH) and right-hand side (RH):
     LH = np.zeros((sum(nFs), sum(nFs)))
