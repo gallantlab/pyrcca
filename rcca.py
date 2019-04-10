@@ -195,7 +195,7 @@ def train_cvfold(data, reg, numCC, kernelcca, ktype, gausigma, degree,
     nT = data[0].shape[0]
     chunklen = 10 if nT > 50 else 1
     nchunks = int(0.2 * nT / chunklen)
-    indchunks = zip(*[iter(range(nT))] * chunklen)
+    indchunks = list(zip(*[iter(range(nT))] * chunklen))
     np.random.shuffle(indchunks)
     heldinds = [ind for chunk in indchunks[:nchunks]
                 for ind in chunk]
