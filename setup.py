@@ -15,6 +15,7 @@ setup(
     url = 'https://github.com/gallantlab/pyrcca',
     license='MIT',
     description='Regularized kernel canonical correlation analysis in Python.',
+    long_description_content_type='text/markdown',
     long_description=long_description,
     install_requires=[
 	'h5py',
