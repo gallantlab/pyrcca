@@ -13,7 +13,7 @@ setup(
     author='Bilenko et al',
     packages=find_packages(),
     url = 'https://github.com/gallantlab/pyrcca',
-    license='MIT',
+    license='Free for non-commercial use',
     description='Regularized kernel canonical correlation analysis in Python.',
     long_description_content_type='text/markdown',
     long_description=long_description,
