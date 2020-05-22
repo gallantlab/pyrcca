@@ -3,16 +3,33 @@ pyrcca
 
 Regularized kernel canonical correlation analysis in Python.
 
-A static Jupyter notebook with the analysis of the example below can be found <a href="https://github.com/gallantlab/pyrcca/blob/master/Pyrcca_usage_example.ipynb">here</a>.
+## Install
 
-A static Jupyter notebook with Pyrcca analysis of fMRI data can be found <a href="https://github.com/gallantlab/pyrcca/blob/master/Pyrcca_neuroimaging_example.ipynb">here</a>.
+You can install the development version of `pyrcca` from GitHub, with:
+
+```bash
+# Install development version of pycortex from github
+pip install -U git+git://github.com/gallantlab/pyrcca.git
+```
+
+## Usage
+
+A static Jupyter notebook with the analysis of the example below can be found 
+[here](examples/Pyrcca_usage_example.ipynb).
+
+A static Jupyter notebook with Pyrcca analysis of fMRI data can be found
+[here](examples/Pyrcca_neuroimaging_example.ipynb).
 
 Both notebooks can be explored interactively by cloning this repository.
 
 
+## Reference
+
 For more information, consult the following e-print publication:
 Bilenko, N.Y. and Gallant, J.L. (2015). Pyrcca: regularized kernel canonical correlation analysis in Python and its applications to neuroimaging. Frontiers in Neuroinformatics <a href="http://journal.frontiersin.org/article/10.3389/fninf.2016.00049/abstract"> doi: 10.3389/fninf.2016.00049</a>
 
+
+## Example
 
 In this startup example, two artificially constructed datasets are created. The datasets depend on two latent variables. Pyrcca is used to find linear relationships between the datasets. 
 
