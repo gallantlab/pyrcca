@@ -9,7 +9,7 @@ with open(readme_path, encoding='utf-8') as f:
 
 setup(
     name='pyrcca',
-    version=0.1,
+    version='0.1',
     author='Bilenko et al',
     packages=find_packages(),
     url = 'https://github.com/gallantlab/pyrcca',

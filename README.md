@@ -5,11 +5,16 @@ Regularized kernel canonical correlation analysis in Python.
 
 ## Install
 
+You can install the latest release of `pyrcca` from PyPI, with:
+
+```bash
+pip install pyrcca
+```
+
 You can install the development version of `pyrcca` from GitHub, with:
 
 ```bash
-# Install development version of pycortex from github
-pip install -U git+git://github.com/gallantlab/pyrcca.git
+pip install git+git://github.com/gallantlab/pyrcca.git
 ```
 
 ## Usage
