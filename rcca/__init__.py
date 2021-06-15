@@ -444,7 +444,7 @@ def _make_kernel(d, normalize=True, ktype="linear", gausigma=1.0, degree=2):
         from scipy.spatial.distance import pdist, squareform
 
         pairwise_dists = squareform(pdist(d, "euclidean"))
-        kernel = np.exp(-(pairwise_dists ** 2) / 2 * gausigma ** 2)
+        kernel = np.exp((-pairwise_dists ** 2) / (2 * gausigma ** 2))
     elif ktype == "poly":
         kernel = np.dot(cd, cd.T) ** degree
     kernel = (kernel + kernel.T) / 2.0
