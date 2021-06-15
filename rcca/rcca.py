@@ -185,8 +185,6 @@ class CCACrossValidate(_CCABase):
         """
         nT = data[0].shape[0]
         chunklen = 10 if nT > 50 else 1
-        nchunks = int(0.2 * nT / chunklen)
-        indchunks = zip(*[iter(range(nT))] * chunklen)
         corr_mat = np.zeros((len(self.regs), len(self.numCCs)))
         selection = max(int(self.select * min([d.shape[1] for d in data])), 1)
         for ri, reg in enumerate(self.regs):
