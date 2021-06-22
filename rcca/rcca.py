@@ -42,7 +42,6 @@ class _CCABase(object):
         self.verbose = verbose
 
     def train(self, data):
-        nT = data[0].shape[0]
         if self.verbose:
             print(
                 "Training CCA, kernel = %s, regularization = %0.4f, "
@@ -184,7 +183,6 @@ class CCACrossValidate(_CCABase):
                              in parallel
         """
         nT = data[0].shape[0]
-        chunklen = 10 if nT > 50 else 1
         corr_mat = np.zeros((len(self.regs), len(self.numCCs)))
         selection = max(int(self.select * min([d.shape[1] for d in data])), 1)
         for ri, reg in enumerate(self.regs):
@@ -203,7 +201,7 @@ class CCACrossValidate(_CCABase):
                             cutoff=self.cutoff,
                             selection=selection,
                         )
-                        for fold in range(self.numCV)
+                        for _ in range(self.numCV)
                     )
                     running_corr_mean_sum += sum(fold_corr_means)
                 else:
