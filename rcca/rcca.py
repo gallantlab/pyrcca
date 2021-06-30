@@ -108,7 +108,7 @@ class _CCABase(object):
         h5.close()
 
     def load(self, filename):
-        h5 = h5py.File(filename, "a")
+        h5 = h5py.File(filename, 'r')
         for key, value in h5.attrs.items():
             setattr(self, key, value)
         for di in range(len(h5.keys())):
@@ -116,8 +116,8 @@ class _CCABase(object):
             for key, value in h5[ds].items():
                 if di == 0:
                     setattr(self, key, [])
-                self.__getattribute__(key).append(value.value)
-
+                self.__getattribute__(key).append(value[()])
+         h5.close()
 
 class CCACrossValidate(_CCABase):
     """
