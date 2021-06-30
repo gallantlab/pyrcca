@@ -1,4 +1,4 @@
-numpy~=1.20.2
-h5py~=3.2.1
-scipy
-joblib
+h5py>=3.2.1
+joblib>=1.0.1
+numpy>=1.20.2
+scipy>=1.6.3
