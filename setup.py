@@ -21,5 +21,6 @@ setup(
         'h5py',
         'numpy',
         'scipy',
+        'joblib',
     ]
 )
