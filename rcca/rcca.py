@@ -12,19 +12,19 @@ __all__ = ["CCA", "CCACrossValidate"]
 
 class _CCABase(object):
     def __init__(
-        self,
-        numCV=None,
-        reg=None,
-        regs=None,
-        numCC=None,
-        numCCs=None,
-        kernelcca=True,
-        ktype=None,
-        verbose=False,
-        select=0.2,
-        cutoff=1e-15,
-        gausigma=1.0,
-        degree=2,
+            self,
+            numCV=None,
+            reg=None,
+            regs=None,
+            numCC=None,
+            numCCs=None,
+            kernelcca=True,
+            ktype=None,
+            verbose=False,
+            select=0.2,
+            cutoff=1e-15,
+            gausigma=1.0,
+            degree=2,
     ):
         self.numCV = numCV
         self.reg = reg
@@ -81,7 +81,7 @@ class _CCABase(object):
             if self.verbose:
                 print("Computing explained variance for component #%d" % ccs)
             preds, corrs = predict(
-                vdata, [w[:, ccs - 1 : ccs] for w in self.ws], self.cutoff
+                vdata, [w[:, ccs - 1: ccs] for w in self.ws], self.cutoff
             )
             resids = [abs(d[0] - d[1]) for d in zip(vdata, preds)]
             for s in range(nD):
@@ -117,7 +117,8 @@ class _CCABase(object):
                 if di == 0:
                     setattr(self, key, [])
                 self.__getattribute__(key).append(value[()])
-         h5.close()
+        h5.close()
+
 
 class CCACrossValidate(_CCABase):
     """
@@ -143,17 +144,17 @@ class CCACrossValidate(_CCABase):
     """
 
     def __init__(
-        self,
-        numCV=None,
-        regs=None,
-        numCCs=None,
-        kernelcca=True,
-        ktype=None,
-        verbose=True,
-        select=0.2,
-        cutoff=1e-15,
-        gausigma=1.0,
-        degree=2,
+            self,
+            numCV=None,
+            regs=None,
+            numCCs=None,
+            kernelcca=True,
+            ktype=None,
+            verbose=True,
+            select=0.2,
+            cutoff=1e-15,
+            gausigma=1.0,
+            degree=2,
     ):
         numCV = 10 if numCV is None else numCV
         regs = np.array(np.logspace(-3, 1, 10)) if regs is None else regs
@@ -241,7 +242,7 @@ class CCACrossValidate(_CCABase):
 
 
 def train_cvfold(
-    data, reg, numCC, kernelcca, ktype, gausigma, degree, cutoff, selection
+        data, reg, numCC, kernelcca, ktype, gausigma, degree, cutoff, selection
 ):
     """
     Train a cross-validation fold of CCA
@@ -294,7 +295,7 @@ class CCA(_CCABase):
     """
 
     def __init__(
-        self, reg=0.0, numCC=10, kernelcca=True, ktype=None, verbose=True, cutoff=1e-15
+            self, reg=0.0, numCC=10, kernelcca=True, ktype=None, verbose=True, cutoff=1e-15
     ):
         super(CCA, self).__init__(
             reg=reg,
@@ -331,7 +332,7 @@ def predict(vdata, ws, cutoff=1e-15):
 
 
 def kcca(
-    data, reg=0.0, numCC=None, kernelcca=True, ktype="linear", gausigma=1.0, degree=2
+        data, reg=0.0, numCC=None, kernelcca=True, ktype="linear", gausigma=1.0, degree=2
 ):
     """Set up and solve the kernel CCA eigenproblem"""
     if kernelcca:
@@ -356,13 +357,13 @@ def kcca(
     # Fill the left and right sides of the eigenvalue problem
     for i in range(nDs):
         RH[
-            sum(nFs[:i]) : sum(nFs[: i + 1]), sum(nFs[:i]) : sum(nFs[: i + 1])
+        sum(nFs[:i]): sum(nFs[: i + 1]), sum(nFs[:i]): sum(nFs[: i + 1])
         ] = crosscovs[i * (nDs + 1)] + reg * np.eye(nFs[i])
 
         for j in range(nDs):
             if i != j:
                 LH[
-                    sum(nFs[:j]) : sum(nFs[: j + 1]), sum(nFs[:i]) : sum(nFs[: i + 1])
+                sum(nFs[:j]): sum(nFs[: j + 1]), sum(nFs[:i]): sum(nFs[: i + 1])
                 ] = crosscovs[nDs * j + i]
 
     LH = (LH + LH.T) / 2.0
@@ -375,7 +376,7 @@ def kcca(
     comp = []
     Vs = Vs[:, rindex]
     for i in range(nDs):
-        comp.append(Vs[sum(nFs[:i]) : sum(nFs[: i + 1]), :numCC])
+        comp.append(Vs[sum(nFs[:i]): sum(nFs[: i + 1]), :numCC])
     return comp
 
 
