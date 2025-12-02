@@ -370,7 +370,7 @@ def kcca(
     RH = (RH + RH.T) / 2.0
 
     maxCC = LH.shape[0]
-    r, Vs = eigh(LH, RH, eigvals=(maxCC - numCC, maxCC - 1))
+    r, Vs = eigh(LH, RH, subset_by_index=(maxCC - numCC, maxCC - 1))
     r[np.isnan(r)] = 0
     rindex = np.argsort(r)[::-1]
     comp = []
